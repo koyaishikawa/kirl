@@ -26,7 +26,8 @@ def main(args):
         nn.Linear(64, env.action_space.n)
     ).to(device)
     buffer = ReplayBuffer(args.buffer_size, args.batch_size, env.observation_space.shape, args.gpu)
-    agent = DDQN(env, eval_env, network, buffer, start_update=args.start_update, target_update = args.target_update, eps=args.eps)
+    phi = lambda x: x
+    agent = DDQN(env, eval_env, network, buffer, start_update=args.start_update, target_update = args.target_update, eps=args.eps, phi=phi)
 
     for i in tqdm(range(args.epoch)):
         obs = env.reset()
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     parser.add_argument("-target-update", default=100)
     parser.add_argument("-eps", default=0.5)
 
-    parser.add_argument("-epoch", default=1000)
+    parser.add_argument("-epoch", default=200)
     parser.add_argument("-eval-steps", default=10)
 
 

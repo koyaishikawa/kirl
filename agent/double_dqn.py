@@ -7,11 +7,9 @@ from agent.base import Base
 
 
 class DDQN(Base):
-    def __init__(self, env, eval_env, network, buffer, start_update, target_update, eps, gamma=0.99, lr=0.001):
+    def __init__(self, env, eval_env, network, buffer, start_update, target_update, eps, gamma=0.99, lr=0.001, phi=lambda x:x):
+        super().__init__(env, eval_env, network, phi)
         self.buffer = buffer
-        self.network = network
-        self.env = env
-        self.eval_env = eval_env
         self.target_network = copy.deepcopy(network)
         self.start_update = start_update
         self.action_dim = env.action_space.shape
@@ -34,7 +32,7 @@ class DDQN(Base):
     def act(self, state, eval=False):
         if eval:
             with torch.no_grad():
-                torch_state = torch.from_numpy(state).float().unsqueeze(0)
+                torch_state = torch.from_numpy(self.phi(state)).float().unsqueeze(0)
                 action_dist = self.network(torch_state)
                 action = action_dist.max(1)[1].item()
         else:
@@ -42,13 +40,14 @@ class DDQN(Base):
                 action = self.env.action_space.sample()
             else:
                 with torch.no_grad():
-                    torch_state = torch.from_numpy(state).float().unsqueeze(0)
+                    torch_state = torch.from_numpy(self.phi(state)).float().unsqueeze(0)
                     action_dist = self.network(torch_state)
                     action = action_dist.max(1)[1].item()
         return action
 
     def evaluation(self):
         R = 0
+        self.network.eval()
         obs = self.eval_env.reset()
         while True:
             action = self.act(obs, eval=True)
@@ -57,6 +56,7 @@ class DDQN(Base):
             if done:
                 break
         
+        self.network.train()
         return R
             
     def random_action(self):
@@ -69,12 +69,13 @@ class DDQN(Base):
         return (self._t > self.start_update)
 
     def update(self):
+        # buffer.get() -> Tensor
         state, action, reward, done, n_state = self.buffer.get()
-        max_value = self.network(state).gather(1, action)
+        max_value = self.network(self._batch_phi(state)).gather(1, action)
 
         with torch.no_grad():
-            next_action_indices = self.network(n_state).max(1)[1]
-            next_max_value = self.target_network(n_state).gather(1, next_action_indices.unsqueeze(1))
+            next_action_indices = self.network(self._batch_phi(n_state)).max(1)[1]
+            next_max_value = self.target_network(self._batch_phi(n_state)).gather(1, next_action_indices.unsqueeze(1))
             target = next_max_value * self.gamma * (1 - done.long()) + reward
         
         loss = ((target - max_value) ** 2).mean()
