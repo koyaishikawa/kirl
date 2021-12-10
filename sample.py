@@ -6,8 +6,9 @@ import torch
 from torch import nn
 import gym
 
-from memory import ReplayBuffer
-from agent import DDQN
+import kirl
+from kirl.memory import ReplayBuffer
+from kirl.agent import DDQN
 
 
 def main(args):

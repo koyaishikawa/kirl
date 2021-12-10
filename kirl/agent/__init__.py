@@ -1,0 +1,1 @@
+from kirl.agent.double_dqn import DDQN
