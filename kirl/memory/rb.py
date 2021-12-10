@@ -3,9 +3,9 @@ import numpy as np
 
 class ReplayBuffer:
 
-    def __init__(self, buffer_size, batch_size, state_shape, device:int):
-        if device > 0:
-            self.device = torch.device(f'cuda:{device}')
+    def __init__(self, buffer_size, batch_size, state_shape, gpu:int):
+        if gpu > 0:
+            self.device = torch.device(f'cuda:{gpu}')
         else:
             self.device = torch.device('cpu')
         # GPU上に保存するデータ．

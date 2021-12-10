@@ -5,11 +5,16 @@ import numpy as np
 
 
 class Base:   
-    def __init__(self, env, eval_env, network, phi):
+    def __init__(self, env, eval_env, network, phi, gpu):
         self.network = network
         self.env = env
         self.eval_env = eval_env
         self.phi = phi
+        if gpu > 0:
+            self.device = torch.device(f'cuda:{gpu}')
+        else:
+            self.device = torch.device('cpu')
+
 
     def observe(self):
         raise NotImplementedError()

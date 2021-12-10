@@ -3,12 +3,12 @@ import copy
 import torch
 import numpy as np
 
-from agent.base import Base
+from kirl.agent.base import Base
 
 
 class DDQN(Base):
-    def __init__(self, env, eval_env, network, buffer, start_update, target_update, eps, gamma=0.99, lr=0.001, phi=lambda x:x):
-        super().__init__(env, eval_env, network, phi)
+    def __init__(self, env, eval_env, network, buffer, start_update, target_update, eps, gpu=-1, gamma=0.99, lr=0.001, phi=lambda x:x):
+        super().__init__(env, eval_env, network, phi, gpu)
         self.buffer = buffer
         self.target_network = copy.deepcopy(network)
         self.start_update = start_update

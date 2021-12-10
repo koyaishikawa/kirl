@@ -32,7 +32,7 @@ def main(args):
 
     for i in tqdm(range(args.epoch)):
         obs = env.reset()
-        for _ in range(300):
+        for _ in range(200):
             action = agent.act(obs)
             n_obs, reward, done, _ = env.step(action)
             agent.observe(obs, action, reward, done, n_obs)
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     parser.add_argument("-target-update", default=100)
     parser.add_argument("-eps", default=0.5)
 
-    parser.add_argument("-epoch", default=200)
+    parser.add_argument("-epoch", default=400)
     parser.add_argument("-eval-steps", default=10)
 
 
