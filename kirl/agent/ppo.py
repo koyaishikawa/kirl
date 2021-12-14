@@ -53,7 +53,7 @@ class PPO(Base):
                  coef_ent=0.01,
                  clip_eps=0.1,
                  gamma=0.99,
-                 lambd=0.007,
+                 lambd=0.95,
                  lr=0.001,
                  phi=lambda x:x
                  ):
@@ -90,20 +90,6 @@ class PPO(Base):
 
         return action
 
-    def evaluation(self):
-        R = 0
-        self.network.eval()
-        obs = self.eval_env.reset()
-        while True:
-            action = self.act(obs, eval=True)
-            obs, reward, done, _ = self.eval_env.step(action)
-            R += reward
-            if done:
-                break
-        
-        self.network.train()
-        return R
-
     def add_memory(self, state, action, reward, done, next_state):
         self.buffer.append(state, action, reward, done, next_state)
 
@@ -129,7 +115,7 @@ class PPO(Base):
 
     def update_network(self, state, action, old_pis, target, advantages):
         action_dist, value = self.network(state)
-        loss_critic = ((value - target) ** 2).mean()
+        loss_critic = 0.5 * ((value - target) ** 2).mean()
         pis = action_dist.gather(1, action)
         mean_entropy = -pis.mean()
 

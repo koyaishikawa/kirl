@@ -44,20 +44,6 @@ class DDQN(Base):
                     action_dist = self.network(torch_state)
                     action = action_dist.max(1)[1].item()
         return action
-
-    def evaluation(self):
-        R = 0
-        self.network.eval()
-        obs = self.eval_env.reset()
-        while True:
-            action = self.act(obs, eval=True)
-            obs, reward, done, _ = self.eval_env.step(action)
-            R += reward
-            if done:
-                break
-        
-        self.network.train()
-        return R
             
     def random_action(self):
         return self.eps < np.random.random()

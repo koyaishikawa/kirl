@@ -2,3 +2,5 @@ __pycache__
 *.ipynb
 test_folder
 kirl.egg-info
+data_path
+*.png
