@@ -1,13 +1,12 @@
 import torch 
 import numpy as np
 
+from kirl.utils.gpu_allocate import gpu_allocate
+
 class ReplayBuffer:
 
     def __init__(self, buffer_size, batch_size, state_shape, gpu:int):
-        if gpu > 0:
-            self.device = torch.device(f'cuda:{gpu}')
-        else:
-            self.device = torch.device('cpu')
+        self.device = gpu_allocate(gpu)
         # GPU上に保存するデータ．
         self.states = torch.empty((buffer_size, *state_shape), dtype=torch.float, device=self.device)
         self.actions = torch.empty((buffer_size, 1), dtype=torch.int64, device=self.device)

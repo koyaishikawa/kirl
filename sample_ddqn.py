@@ -10,14 +10,11 @@ import gym
 import kirl
 from kirl.memory import ReplayBuffer
 from kirl.agent import DDQN
+from kirl.utils import gpu_allocate
 
 
-def main(args):
-    if args.gpu > 0:
-        device = torch.device(f'cuda:{args.gpu}')
-    else:
-        device = torch.device('cpu')
-
+def main(args): 
+    device = gpu_allocate(args.gpu)
     env = gym.make('CartPole-v0')
     eval_env = gym.make('CartPole-v0')
     network = nn.Sequential(
@@ -29,7 +26,7 @@ def main(args):
     ).to(device)
     buffer = ReplayBuffer(args.buffer_size, args.batch_size, env.observation_space.shape, args.gpu)
     phi = lambda x: x
-    agent = DDQN(env, eval_env, network, buffer, start_update=args.start_update, target_update = args.target_update, eps=args.eps, phi=phi)
+    agent = DDQN(env, eval_env, network, buffer, start_update=args.start_update, target_update = args.target_update, eps=args.eps, phi=phi, gpu=args.gpu,)
 
     save_data_path = 'data_path/ddqn/'
 
@@ -56,7 +53,7 @@ def main(args):
     plt.plot(R_list, label='raw', alpha=0.6)
     plt.plot(mean_R_list, label='mean')
     plt.legend()
-    plt.savefig('ddqn.png')
+    plt.savefig('performance_with_ddqn.png')
     
 
 if __name__ == "__main__":

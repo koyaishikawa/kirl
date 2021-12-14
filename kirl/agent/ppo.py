@@ -79,7 +79,7 @@ class PPO(Base):
     def act(self, state, eval=False):
         # TODO batch_act()の実装 並行化は想定していない
         with torch.no_grad():
-            torch_state = torch.from_numpy(self.phi(state)).float().unsqueeze(0)
+            torch_state = self._as_tensor(state).unsqueeze(0)
             action_dist, _ = self.network(torch_state)
 
         if eval:

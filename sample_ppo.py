@@ -10,15 +10,12 @@ import gym
 import kirl
 from kirl.agent import PPO
 from kirl.utils import train_agent_with_evaluation
+from kirl.utils import gpu_allocate
 
 
 
 def main(args):
-    if args.gpu > 0:
-        device = torch.device(f'cuda:{args.gpu}')
-    else:
-        device = torch.device('cpu')
-
+    device = gpu_allocate(args.gpu)
     env = gym.make('CartPole-v0')
     eval_env = gym.make('CartPole-v0')
 

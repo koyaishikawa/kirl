@@ -5,6 +5,8 @@ import torch
 from torch import nn
 import numpy as np
 
+from kirl.utils import gpu_allocate
+
 
 class Base:   
     def __init__(self, env, eval_env, network, phi, gpu):
@@ -12,10 +14,7 @@ class Base:
         self.env = env
         self.eval_env = eval_env
         self.phi = phi
-        if gpu > 0:
-            self.device = torch.device(f'cuda:{gpu}')
-        else:
-            self.device = torch.device('cpu')
+        self.device = gpu_allocate(gpu)
 
 
     def observe(self):
@@ -37,7 +36,7 @@ class Base:
         self.network.load_state_dict(torch.load(file_name))
 
     def save_network(self, file_name):
-        torch.save(self.network.to('cpu').state_dict(), file_name)
+        torch.save(self.network.state_dict(), file_name)
 
     def _do_one_episode(self, eval=False):
         R = 0
@@ -53,6 +52,9 @@ class Base:
             if done:
                 break
         return R
+
+    def _as_tensor(self, state):
+        return torch.from_numpy(self.phi(state)).float().to(self.device)
 
     def _batch_phi(self, state):
         assert len(state.shape) > 1, 'state do not have batch dim.'

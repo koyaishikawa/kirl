@@ -19,7 +19,6 @@ class DDQN(Base):
         self.target_update = target_update
 
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr=lr)
-        
     
     def observe(self, state, action, reward, done, next_state):   
         self._t += 1     
@@ -32,7 +31,7 @@ class DDQN(Base):
     def act(self, state, eval=False):
         if eval:
             with torch.no_grad():
-                torch_state = torch.from_numpy(self.phi(state)).float().unsqueeze(0)
+                torch_state = self._as_tensor(state).unsqueeze(0)
                 action_dist = self.network(torch_state)
                 action = action_dist.max(1)[1].item()
         else:
@@ -40,7 +39,7 @@ class DDQN(Base):
                 action = self.env.action_space.sample()
             else:
                 with torch.no_grad():
-                    torch_state = torch.from_numpy(self.phi(state)).float().unsqueeze(0)
+                    torch_state = self._as_tensor(state).unsqueeze(0)
                     action_dist = self.network(torch_state)
                     action = action_dist.max(1)[1].item()
         return action
