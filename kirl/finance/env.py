@@ -18,7 +18,7 @@ class FinanceEnv(gym.Env):
         self.data_length = input_data.shape[0]
         self.cost = cost
 
-        _obs = self.reset()
+        _obs = self._reset()
         self.action_space = Discrete(3)
         self.observation_space = Box(input_data.min(), input_data.max(), _obs.shape)
 
@@ -77,3 +77,8 @@ class FinanceEnv(gym.Env):
     def _append_action(self):
         return np.append(self.input_data[self._t].flatten(), self.prev_action / 2)
     
+    def _reset(self):
+        self._t = 0
+        self.prev_action = Action.NOOP
+        self.obs = self._append_action()
+        return self.obs
