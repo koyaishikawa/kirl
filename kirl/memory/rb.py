@@ -1,7 +1,7 @@
 import torch 
 import numpy as np
 
-from kirl.utils.gpu_allocate import gpu_allocate
+from kirl.utils import gpu_allocate
 
 class ReplayBuffer:
 

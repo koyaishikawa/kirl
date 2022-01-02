@@ -7,7 +7,19 @@ from kirl.agent.base import Base
 
 
 class DDQN(Base):
-    def __init__(self, env, eval_env, network, buffer, start_update, target_update, eps, gpu=-1, gamma=0.99, lr=0.001, phi=lambda x:x):
+    def __init__(self,
+                 env,
+                 eval_env,
+                 network,
+                 buffer,
+                 start_update,
+                 target_update,
+                 eps,
+                 gpu=-1,
+                 gamma=0.99,
+                 lr=0.001,
+                 max_grad_norm=0.5,
+                 phi=lambda x:x):
         super().__init__(env, eval_env, network, phi, gpu)
         self.buffer = buffer
         self.target_network = copy.deepcopy(network)
@@ -17,6 +29,7 @@ class DDQN(Base):
         self.gamma = gamma
         self.eps = eps
         self.target_update = target_update
+        self.max_grad_norm = max_grad_norm
 
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr=lr)
     
@@ -66,6 +79,7 @@ class DDQN(Base):
         loss = ((target - max_value) ** 2).mean()
         self.optimizer.zero_grad()
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.network.parameters(), self.max_grad_norm)
         self.optimizer.step()
         
     def do_update_target_network(self):
