@@ -11,19 +11,11 @@ class RolloutBuffer:
 
     def __init__(self, buffer_size, parallel_env_num, state_shape, device=torch.device('cuda')):
 
-        if parallel_env_num == None:
-            self.states = torch.empty((buffer_size, *state_shape), dtype=torch.float, device=device)
-            self.actions = torch.empty((buffer_size, 1), dtype=torch.int64, device=device)
-            self.rewards = torch.empty((buffer_size, 1), dtype=torch.float, device=device)
-            self.dones = torch.empty((buffer_size, 1), dtype=torch.float, device=device)
-            self.next_states = torch.empty((buffer_size, *state_shape), dtype=torch.float, device=device)
-   
-        else:
-            self.states = torch.empty((buffer_size, parallel_env_num, *state_shape), dtype=torch.float, device=device)
-            self.actions = torch.empty((buffer_size, parallel_env_num, 1), dtype=torch.int64, device=device)
-            self.rewards = torch.empty((buffer_size, parallel_env_num, 1), dtype=torch.float, device=device)
-            self.dones = torch.empty((buffer_size, parallel_env_num, 1), dtype=torch.float, device=device)
-            self.next_states = torch.empty((buffer_size, parallel_env_num, *state_shape), dtype=torch.float, device=device)
+        self.states = torch.empty((buffer_size, parallel_env_num, *state_shape), dtype=torch.float, device=device)
+        self.actions = torch.empty((buffer_size, parallel_env_num, 1), dtype=torch.int64, device=device)
+        self.rewards = torch.empty((buffer_size, parallel_env_num, 1), dtype=torch.float, device=device)
+        self.dones = torch.empty((buffer_size, parallel_env_num, 1), dtype=torch.float, device=device)
+        self.next_states = torch.empty((buffer_size, parallel_env_num, *state_shape), dtype=torch.float, device=device)
      
         # 次にデータを挿入するインデックス．
         self._p = 0
@@ -32,9 +24,9 @@ class RolloutBuffer:
 
     def append(self, state, action, reward, done, next_state):
         self.states[self._p].copy_(torch.from_numpy(state))
-        self.actions[self._p]= int(action)
-        self.rewards[self._p] = float(reward)
-        self.dones[self._p] = float(done)
+        self.actions[self._p].copy_(torch.from_numpy(action))
+        self.rewards[self._p].copy_(torch.from_numpy(reward))
+        self.dones[self._p].copy_(torch.from_numpy(done))
         self.next_states[self._p].copy_(torch.from_numpy(next_state))
         self._p = (self._p + 1) % self.buffer_size
     

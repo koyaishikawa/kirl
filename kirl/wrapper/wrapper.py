@@ -1,4 +1,5 @@
 import gym
+import numpy as np
 
 
 class SingleEnv(gym.Wrapper):
@@ -8,4 +9,6 @@ class SingleEnv(gym.Wrapper):
 
     def step(self, action):
         action = action[0]
-        return self.env.step(action)
+        obs, reward, done, info = self.env.step(action)
+
+        return np.array(obs), np.array(reward), np.array(done), info
