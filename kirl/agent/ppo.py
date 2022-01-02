@@ -82,7 +82,7 @@ class PPO(Base):
     def act(self, state, eval=False):
         # TODO batch_act()の実装 並行化は想定していない
         torch_state = self._as_tensor(state)
-        if self.parallel_env_num == 1:
+        if (self.parallel_env_num == 1) or eval:
             torch_state = torch_state.unsqueeze(0)
         with torch.no_grad():
             action_dist, _ = self.network(torch_state)
