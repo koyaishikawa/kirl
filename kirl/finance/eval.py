@@ -18,7 +18,7 @@ def trade_evaluation(env, agent, save_data_dir):
         action = agent.act(obs, eval=True)
         obs, reward, done, _ = env.step(action)
         total_profit += reward
-        trade_history.append(total_profit)
+        trade_history.append(total_profit.item())
         if abs(prev_action - action) == 2:
             trade_action.append([prev_action, trade_length, reward + env.cost])
             trade_length = 1
@@ -39,6 +39,7 @@ def trade_evaluation(env, agent, save_data_dir):
         if done:
             break
     
+    print(trade_history)
     plt.plot(trade_history)
     plt.savefig(f'{save_data_dir}/trade_history.png')
 

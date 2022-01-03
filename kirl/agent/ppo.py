@@ -60,8 +60,7 @@ class PPO(Base):
                  ):
 
         super().__init__(env, eval_env, network, phi, gpu)
-        obs = env.reset()
-        self.buffer = RolloutBuffer(buffer_size, parallel_env_num, phi(obs).shape, device=self.device)
+        self.buffer = RolloutBuffer(buffer_size, parallel_env_num, env.observation_space.shape, device=self.device)
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr=lr)
         self.gamma = gamma
         self.lambd = lambd
